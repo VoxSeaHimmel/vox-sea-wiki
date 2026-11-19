@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vox Seas Wiki</title>
+<style>
+body {
+  background: #101522;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+h1 { color: #54c8ff; }
+input {
+  width: 95%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+}
+.card {
+  background: #202b40;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 10px;
+}
+</style>
+</head>
+<body>
+<h1>🌊 VOX SEAS WIKI</h1>
+<p>Seu guia de Vox Seas no Roblox!</p>
+
+<input id="busca" placeholder="Pesquisar item..." oninput="pesquisar()">
+
+<div id="itens">
+  <div class="card">Em breve: localização dos materiais.</div>
+  <div class="card">Em breve: frutas e obtenção.</div>
+  <div class="card">Em breve: ilhas e NPCs.</div>
+</div>
+
+<script>
+function pesquisar() {
+  let busca = document.getElementById("busca").value.toLowerCase();
+  document.querySelectorAll(".card").forEach(card => {
+    card.style.display = card.textContent.toLowerCase().includes(busca) ? "block" : "none";
+  });
+}
+</script>
+</body>
+</html>
