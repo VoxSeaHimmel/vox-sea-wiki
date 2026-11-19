@@ -7,407 +7,424 @@
 <title>Vox Seas Wiki</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b1220;color:#edf4ff;font-family:Arial,sans-serif}
-header{padding:28px 18px;background:linear-gradient(135deg,#102b48,#15152d);text-align:center}
-h1{color:#58caff;margin:0;font-size:30px}
-header p{color:#b7cce0}
-main{padding:16px;max-width:850px;margin:auto}
-input{width:100%;padding:14px;border:1px solid #38516e;border-radius:10px;background:#17243a;color:white;font-size:16px}
-nav{display:flex;gap:8px;overflow-x:auto;margin:16px 0}
-button{background:#1b3450;color:white;border:1px solid #365777;padding:11px 14px;border-radius:9px;white-space:nowrap}
-button.active{background:#087db7}
-.card{background:#17243a;border:1px solid #2a405d;border-radius:12px;padding:15px;margin:12px 0}
-.card h3{color:#65ceff;margin-top:0}
-.tag{color:#9ddcff;font-size:12px}
-.small{color:#aebed1;font-size:13px}
-footer{text-align:center;color:#8296ad;padding:25px}
+body{margin:0;background:#08111f;color:#edf5ff;font-family:Arial,sans-serif}
+header{padding:30px 16px;text-align:center;background:linear-gradient(135deg,#103858,#17152f);border-bottom:1px solid #28506e}
+h1{margin:0;color:#58caff;font-size:30px}
+header p{color:#b7cce0;margin:9px 0}
+main{max-width:1000px;margin:auto;padding:16px}
+#search{width:100%;padding:15px;border-radius:12px;border:1px solid #365675;background:#14243a;color:white;font-size:16px;outline:none}
+#search:focus{border-color:#42bfff}
+nav{display:flex;gap:8px;overflow-x:auto;padding:12px 0;margin:5px 0 15px}
+button{background:#172c45;color:#dceeff;border:1px solid #35516e;padding:11px 15px;border-radius:9px;white-space:nowrap;cursor:pointer}
+button.active{background:#087db7;border-color:#49caff}
+#count{color:#91b5d1;font-size:13px;margin:10px 2px}
+.card{background:#14243a;border:1px solid #29435f;border-radius:13px;padding:16px;margin:12px 0;box-shadow:0 4px 15px #0002}
+.card h3{color:#65ceff;margin:8px 0}
+.card p{line-height:1.5;margin:8px 0;color:#d5e3f2}
+.tag{display:inline-block;background:#173e5c;color:#9cddff;padding:5px 9px;border-radius:20px;font-size:11px}
+.local{color:#9bbbd4!important;font-size:13px}
+.note{color:#f4d58a!important;font-size:12px}
+.empty{text-align:center;padding:30px;color:#a8bed2}
+footer{text-align:center;padding:25px;color:#8296ad;font-size:12px}
+a{color:#66caff}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#clear{font-size:12px;padding:8px 11px}
 </style>
 </head>
 <body>
+
 <header>
 <h1>🌊 VOX SEAS WIKI</h1>
-<p>Guia de itens, NPCs, missões e ilhas</p>
-<p class="small">Wiki independente • Atualizada em 19/11/2026</p>
+<p>Guia de ilhas, NPCs, missões, materiais e chefes</p>
+<p style="font-size:12px">Wiki independente • Atualizada em 19/11/2026</p>
 </header>
 
 <main>
-<input id="search" placeholder="🔎 Pesquisar item, NPC, missão ou ilha..." oninput="render()">
+<input id="search" type="search"
+placeholder="🔎 Pesquisar nome, ilha, material ou NPC...">
 
-<nav>
-<button class="active" onclick="filter('Todos',this)">Tudo</button>
-<button onclick="filter('NPC',this)">NPCs</button>
-<button onclick="filter('Missão',this)">Missões</button>
-<button onclick="filter('Ilha',this)">Ilhas</button>
-<button onclick="filter('Material',this)">Materiais</button>
-</nav>
+<div class="top">
+<div id="count">Carregando informações...</div>
+<button id="clear" onclick="limpar()">Limpar pesquisa</button>
+</div>
 
+<nav id="menu"></nav>
 <div id="results"></div>
 </main>
 
 <footer>
-Vox Seas Wiki • Projeto independente de fãs
+<p>VOX SEAS WIKI • Projeto independente de fãs</p>
+<p>Informações podem mudar conforme as atualizações do jogo.</p>
+<p>Dados não confirmados estão identificados na descrição.</p>
 </footer>
 
 <script>
 const dados = [
-{
-tipo:"NPC",nome:"Hango",ilha:"Solmar Island",
-info:"Village Chief. Fica na Elder's House. Participa da história inicial e entrega uma fruta após o retorno da missão da Sacred Flower."
-},
-{
-tipo:"NPC",nome:"Beatriz",ilha:"Solmar Island",
-info:"Fica perto do cais. Participa da história do festival e recebe a Sacred Flower quando você retorna de Forbidden Island."
-},
-{
-tipo:"NPC",nome:"Supplies Lady",ilha:"Solmar Island",
-info:"Fica na Old Lady's House. Relacionada à missão Supplies for the Crossing."
-},
-{
-tipo:"NPC",nome:"Hale",ilha:"Solmar Island",
-info:"Fica perto da loja de navios. A loja fica atrás dele."
-},
-{
-tipo:"NPC",nome:"Sky Hermit",ilha:"Solmar Island",
-info:"Instrutor de mobilidade. Desbloqueia Heavenstep a partir do nível 10 por 500 Gold."
-},
-{
-tipo:"NPC",nome:"Darius",ilha:"Forbidden Island",
-info:"NPC relacionado ao acampamento de caçadores e à história da ilha."
-},
-{
-tipo:"NPC",nome:"Morgana",ilha:"Forbidden Island",
-info:"NPC localizado na Witch House."
-},
-{
-tipo:"NPC",nome:"Circus Town Mayor",ilha:"Circus Town",
-info:"Fica dentro da Mayor House. Participa das entregas da história após os acontecimentos com Jester."
-},
-{
-tipo:"NPC",nome:"Old Explorer",ilha:"Harbor Island",
-info:"Fica dentro de um edifício. Recebe as notas da história depois da revolução em Golden Dunes."
-},
-{
-tipo:"NPC",nome:"Pawnbroker",ilha:"Harbor Island",
-info:"Compra tesouros e vende mapas do tesouro. A missão do mapa libera após derrotar um inimigo de nível 100 ou superior."
-},
-{
-tipo:"NPC",nome:"Banker",ilha:"Harbor Island",
-info:"Guarda itens. Possui três espaços gratuitos; espaços extras custam cerca de 100 Gold."
-},
-{
-tipo:"NPC",nome:"Hairdresser",ilha:"Harbor Island",
-info:"Permite mudar a aparência por 1.000 moedas."
-},
-{
-tipo:"NPC",nome:"Vox Gacha",ilha:"Harbor Island e Wandering Bastille",
-info:"Permite girar para receber uma fruta. Um giro a cada duas horas. Custo de 30 Gold por nível, com mínimo de 3.000 Gold."
-},
-{
-tipo:"Missão",nome:"Defeat Pirates",ilha:"Solmar Island",
-info:"Nível mínimo 1. Derrote 4 Cutlass Pirates e 4 Flint Pirates. Recompensa listada: 73 EXP e 170 Gold base."
-},
-{
-tipo:"Missão",nome:"Defeat Werewolfs",ilha:"Forbidden Island",
-info:"Nível mínimo 10. Missão de caça disponível na ilha. Recompensa listada: 420 EXP."
-},
-{
-tipo:"Missão",nome:"Defeat Jester Pirates",ilha:"Circus Town",
-info:"Nível mínimo 45. Missão de caça contra piratas da ilha. Recompensa listada: 4.100 EXP."
-},
-{
-tipo:"Missão",nome:"The Lost Brother",ilha:"Solmar Island",
-info:"Missão da história. Depois do festival, siga o objetivo até Supplies for the Crossing e prepare sua primeira viagem."
-},
-{
-tipo:"Missão",nome:"Sacred Flower",ilha:"Forbidden Island",
-info:"Parte da história para ajudar Luca. Depois de conseguir a Sacred Flower, retorne a Solmar e entregue para Beatriz."
-},
-{
-tipo:"Missão",nome:"A revolução",ilha:"Golden Dunes",
-info:"Continue a história da ilha e obtenha as notas do Legendary Treasure. Depois retorne ao Old Explorer em Harbor."
-},
-{
-tipo:"Missão",nome:"The Night at the Bastille",ilha:"Harbor Island e Wandering Bastille",
-info:"Parte da história que envolve uma Fishing Rod, a carta no hotel e a entrega de uma amostra ao chef do restaurante."
-},
-{
-tipo:"Ilha",nome:"Solmar Island",ilha:"Nível 0–10",
-info:"Ilha inicial. Possui vila, loja de navios, Hango, Beatriz, Supplies Lady, Hale e Sky Hermit."
-},
-{
-tipo:"Ilha",nome:"Forbidden Island",ilha:"Nível 10–45",
-info:"Possui acampamento de caçadores, Witch House, Darius e Morgana."
-},
-{
-tipo:"Ilha",nome:"Circus Town",ilha:"Nível 45–80",
-info:"Cidade do circo. Possui Mayor House e NPCs da história relacionados a Jester."
-},
-{
-tipo:"Ilha",nome:"Golden Dunes",ilha:"Nível 80–100",
-info:"Ilha do deserto. Possui a história da revolução e o Mysterious Monk."
-},
-{
-tipo:"Ilha",nome:"Frost Island",ilha:"Nível 115–145",
-info:"Ilha da história do reino e da missão relacionada ao Yeti Blood."
-},
-{
-tipo:"Ilha",nome:"Skull Island",ilha:"Nível 145–150",
-info:"Ilha onde Askard inicia o treinamento de Vox Sense e Vox Armor."
-},
-{
-tipo:"Ilha",nome:"Shark Park",ilha:"Nível 150–180",
-info:"Possui a cadeia de missões dos pescadores e o treinador Nalu."
-},
-{
-tipo:"Ilha",nome:"Rustfall",ilha:"Nível 180–230",
-info:"Ilha industrial. Possui o treinador Ansel."
-},
-{
-tipo:"Ilha",nome:"Prison Island",ilha:"Nível 230–255",
-info:"Área de progressão com encontros relacionados a Morvath."
-},
-{
-tipo:"Ilha",nome:"Valoria",ilha:"Nível 255–285",
-info:"Ilha de progressão intermediária para avançada."
-},
-{
-tipo:"Ilha",nome:"Windhaven",ilha:"Nível 290–325",
-info:"Área com desafios de mobilidade e missões avançadas."
-},
-{
-tipo:"Ilha",nome:"Nerúvia",ilha:"Nível 325–370",
-info:"Área de progressão avançada."
-},
-{
-tipo:"Ilha",nome:"Marine Ford",ilha:"Nível 370–415",
-info:"Área de progressão avançada com grandes objetivos de história."
-},
-{
-tipo:"Ilha",nome:"Vulcan / Ashforge",ilha:"Nível 415–450",
-info:"Área final da progressão listada, com Kaeldros."
-},
-{
-tipo:"Material",nome:"Wood",ilha:"Solmar Ship Shop",
-info:"Custa 5 Gold por unidade. Usado para reparar barcos com o Shipwright's Hammer."
-},
-{
-tipo:"Material",nome:"Sky Silk",ilha:"Starter Island",
-info:"A rota começa atrás das casas. Procure o NPC que indica o caminho do parkour da montanha."
-},
-{
-tipo:"Material",nome:"Tattered Bandana",ilha:"Rovan Normal Boss Room",
-info:"Material com chance de drop listada de 27,5%."
-},
-{
-tipo:"Material",nome:"Outlaw's Seal",ilha:"Rovan Normal Boss Room",
-info:"Material com chance de drop listada de 15%."
-},
-{
-tipo:"Material",nome:"Seashell",ilha:"Praias de Solmar",
-info:"Recurso listado como ingrediente da Rovan Hard Key. A localização exata de coleta ainda precisa de confirmação."
-},
-{
-tipo:"Material",nome:"Hemp Rope",ilha:"Local não confirmado",
-info:"Ingrediente da Rovan Hard Key. Fonte exata ainda não confirmada."
-},
-{
-tipo:"Material",nome:"Canvas Scrap",ilha:"Local não confirmado",
-info:"Ingrediente da Rovan Hard Key. Fonte exata ainda não confirmada."
-},
-{
-tipo:"Material",nome:"Pine Tar",ilha:"Local não confirmado",
-info:"Ingrediente da Rovan Hard Key. Fonte exata ainda não confirmada."
-},
-{
-tipo:"Material",nome:"Raw Metal",ilha:"Local não confirmado",
-info:"Ingrediente da Rovan Hard Key. Fonte exata ainda não confirmada."
-},
-{
-tipo:"Material",nome:"Shipwreck Wood",ilha:"Local não confirmado",
-info:"Ingrediente da Rovan Hard Key. Fonte exata ainda não confirmada."
-},
-{
-tipo:"Chave",nome:"Bandit King Rovan Hard Key",
-ilha:"Blacksmith — Harbor Island",
-info:"Receita de uma chave: 5 Canvas Scrap, 8 Shipwreck Wood, 8 Hemp Rope, 5 Pine Tar, 12 Raw Metal e 5 Seashell. Nível mínimo da sala: 300 para todos os jogadores."
-},
-{
-tipo:"Chave",nome:"Rovan Boss Room — Normal",
-ilha:"Room Keeper — Solmar Island",
-info:"Nível mínimo 100. O líder precisa da Normal Key. Recompensas documentadas: Tattered Bandana (27,5%), Outlaw's Seal (15%) e três receitas de acessórios (16,48% cada)."
-},
-{
-tipo:"Chave",nome:"Rovan Boss Room — Medium",
-ilha:"Room Keeper — Solmar Island",
-info:"Nível mínimo 200. O líder precisa da Bandit King Rovan Medium Key, fabricada no Blacksmith."
-},
-{
-tipo:"Chave",nome:"Rovan Boss Room — Hard",
-ilha:"Room Keeper — Solmar Island",
-info:"Nível mínimo 300. O líder precisa da Bandit King Rovan Hard Key. A receita está listada nesta Wiki."
-},
-{
-tipo:"Chave",nome:"Rovan Boss Room — Insane",
-ilha:"Room Keeper — Solmar Island",
-info:"Nível mínimo 400. O líder precisa da Bandit King Rovan Insane Key."
-},
-{
-tipo:"Chave",nome:"Rovan Boss Room — Nightmare",
-ilha:"Room Keeper — Solmar Island",
-info:"Nível mínimo 500. O líder precisa da Bandit King Rovan Nightmare Key."
-},
-{
-tipo:"Boss",nome:"Bandit King Rovan",
-ilha:"Solmar Island",
-info:"Materiais: Tattered Bandana, Outlaw's Seal e Forge Ember. A sala Normal também possui receitas de acessórios. As chances dos demais drops não estão confirmadas."
-},
-{
-tipo:"Boss",nome:"Duskfang Reaper Veyrn",
-ilha:"Forbidden Island",
-info:"Drops documentados: Wolf Leather, Wolf Skull e Death Fangs. Room Keeper fica fora da Crypt. A tabela completa de recompensas por dificuldade ainda precisa ser confirmada."
-},
-{
-tipo:"Boss",nome:"Crimson Jester Noctis",
-ilha:"Circus Town",
-info:"Materiais documentados: Jester's Bell e Crimson Mask Shard. Também possui recompensas de equipamento."
-},
-{
-tipo:"Boss",nome:"Sandstorm Pharaoh Narmer",
-ilha:"Golden Dunes",
-info:"Materiais documentados: Royal Linen Wrap, Pharaoh's Ruby e Forge Ember."
-},
-{
-tipo:"Boss",nome:"Sand Tyrant Varek",
-ilha:"Golden Dunes",
-info:"Materiais documentados: Scorched Scarab Shell, Sun Stone e Forge Ember."
-},
-{
-tipo:"Boss",nome:"Blizzard Colossus Yeti",
-ilha:"Frost Island",
-info:"Materiais documentados: Frost Core Left, Frost Core Right e Forge Ember."
-},
-{
-tipo:"Boss",nome:"Ice King Kael",
-ilha:"Frost Island",
-info:"Materiais documentados: Frost Crystal Shard, Glacial Essence e Forge Ember."
-},
-{
-tipo:"Boss",nome:"Tidebreaker Zarkan",
-ilha:"Shark Park",
-info:"A tabela consultada menciona recompensas de equipamento. Materiais e porcentagens ainda precisam de confirmação."
-},
-{
-tipo:"Boss",nome:"Golem",
-ilha:"Skull Island",
-info:"A lista de recompensas e a localização precisam de confirmação adicional."
-},
-{
-tipo:"Boss",nome:"Iron Lotus Master Renshu",
-ilha:"Local não confirmado",
-info:"Materiais documentados: Gilded Prayer Bead, Iron Lotus Petal e Forge Ember."
-},
-{
-tipo:"Boss",nome:"The False God Raikan",
-ilha:"Local não confirmado",
-info:"Material de drop ainda não confirmado. A tabela consultada destaca recompensas de equipamento."
-},
-{
-tipo:"Boss",nome:"Shackled Titan Gromar",
-ilha:"Local não confirmado",
-info:"Materiais documentados: Broken Shackle, Titan's Chain Link e Forge Ember."
-},
-{
-tipo:"Boss",nome:"Blight Warden Morvath",
-ilha:"Prison",
-info:"Materiais documentados: Toxic Sludge, Blight Vial e Forge Ember."
-},
-{
-tipo:"Boss",nome:"Coliseum Empress Thalara",
-ilha:"Coliseum",
-info:"Materiais documentados: Champion's Laurel, Empress Sigil e Forge Ember."
-},
-{
-tipo:"Boss",nome:"Golden Admiral Aurel",
-ilha:"Local não confirmado",
-info:"Materiais documentados: Gilded Epaulette, Admiral's Medal e Forge Ember."
-},
-{
-tipo:"Boss",nome:"Eternal Forgemaster Kaeldros",
-ilha:"Vulcan Island",
-info:"Materiais documentados: Molten Slag, Everburning Core e Forge Ember."
-},
-{
-tipo:"Material",nome:"Forge Ember",
-ilha:"Drops de chefes",
-info:"Material de forja documentado nos drops de Rovan, Narmer, Kael, Morvath, Kaeldros, Yeti, Gromar, Renshu, Thalara, Varek e Golden Admiral Aurel. Chance individual não confirmada."
-},
-{
-tipo:"Material",nome:"Tattered Bandana",
-ilha:"Rovan Normal Boss Room — Solmar",
-info:"Chance documentada: 27,5%."
-},
-{
-tipo:"Material",nome:"Outlaw's Seal",
-ilha:"Rovan Normal Boss Room — Solmar",
-info:"Chance documentada: 15%."
-},
-{
-tipo:"Material",nome:"Raw Metal",
-ilha:"Fonte de farm não confirmada para esta versão",
-info:"Ingrediente da receita da Rovan Hard Key. Confira a receita no Blacksmith antes de farmar."
-},
-{
-tipo:"Material",nome:"Shipwreck Wood",
-ilha:"Fonte de farm não confirmada",
-info:"Ingrediente da receita da Rovan Hard Key: 8 unidades."
-},
-{
-tipo:"Material",nome:"Hemp Rope",
-ilha:"Fonte de farm não confirmada",
-info:"Ingrediente da receita da Rovan Hard Key: 8 unidades."
-},
-{
-tipo:"Material",nome:"Canvas Scrap",
-ilha:"Fonte de farm não confirmada",
-info:"Ingrediente da receita da Rovan Hard Key: 5 unidades."
-},
-{
-tipo:"Material",nome:"Pine Tar",
-ilha:"Fonte de farm não confirmada",
-info:"Ingrediente da receita da Rovan Hard Key: 5 unidades."
-},
-{
-tipo:"Material",nome:"Seashell",
-ilha:"Fonte de farm não confirmada",
-info:"Ingrediente da receita da Rovan Hard Key: 5 unidades."
-}
-  
-];
 
-let categoria="Todos";
+/* ================= ILHAS ================= */
 
-function filter(c,btn){
-categoria=c;
-document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
-render();
-}
+{tipo:"Ilha",nome:"Harbor Island",ilha:"Área principal",
+info:"Centro de serviços. Possui Vox Gacha, Hairdresser, Pawnbroker e Blacksmith. Não possui faixa de nível indicada."},
 
-function render(){
-let q=document.getElementById("search").value.toLowerCase();
-let lista=dados.filter(d=>
-(categoria==="Todos"||d.tipo===categoria)&&
-(d.nome+" "+d.ilha+" "+d.info+" "+d.tipo).toLowerCase().includes(q)
-);
-document.getElementById("results").innerHTML=lista.length?lista.map(d=>`
-<div class="card">
-<span class="tag">${d.tipo}</span>
-<h3>${d.nome}</h3>
-<p><b>Local:</b> ${d.ilha}</p>
-<p>${d.info}</p>
-</div>`).join(""):"<p>Nenhum resultado encontrado.</p>";
-}
-render();
-</script>
-</body>
-</html>
+{tipo:"Ilha",nome:"Solmar Island",ilha:"Nível 0–10",
+info:"Ilha inicial. Possui Hango, Beatriz, Supplies Lady, Hale, Sky Hermit e loja de navios. Boss associado: Bandit King Rovan."},
+
+{tipo:"Ilha",nome:"Forbidden Island",ilha:"Nível 10–45",
+info:"Área de progressão com missões relacionadas aos Werewolves. Possui Darius e Morgana. Boss associado: Duskfang Reaper Veyrn."},
+
+{tipo:"Ilha",nome:"Circus Town",ilha:"Nível 45–80",
+info:"Cidade do circo. Possui Mayor House e missões relacionadas aos palhaços. Boss associado: Noctis, The Crimson Jester."},
+
+{tipo:"Ilha",nome:"Golden Dunes",ilha:"Nível 80–100",
+info:"Ilha desértica. Possui missões da revolução e o Mysterious Monk. Boss associado: Narmer."},
+
+{tipo:"Ilha",nome:"Frost Island",ilha:"Nível 115–145",
+info:"Ilha congelada. Possui missões relacionadas à história do reino e ao Yeti Blood. Boss associado: Kael."},
+
+{tipo:"Ilha",nome:"Skull Island",ilha:"Nível 145–150",
+info:"Área de progressão. Possui treinamento relacionado a Vox Sense e Vox Armor."},
+
+{tipo:"Ilha",nome:"Shark Park",ilha:"Nível 150–180",
+info:"Área de progressão com missões relacionadas aos pescadores. Boss associado: Zarkan."},
+
+{tipo:"Ilha",nome:"Rustfall",ilha:"Nível 180–230",
+info:"Ilha industrial. Área de progressão com desafios e missões."},
+
+{tipo:"Ilha",nome:"Prison",ilha:"Nível 230–255",
+info:"Área de progressão com encontros relacionados a Morvath."},
+
+{tipo:"Ilha",nome:"Valoria",ilha:"Nível 255–285",
+info:"Área de progressão intermediária. Detalhes de NPCs ainda não confirmados."},
+
+{tipo:"Ilha",nome:"Windhaven",ilha:"Nível 290–325",
+info:"Também chamada de The Lands Above Rustfall. Área de progressão avançada."},
+
+{tipo:"Ilha",nome:"Nerúvia",ilha:"Nível 325–370",
+info:"Área de progressão avançada. Detalhes de NPCs ainda não confirmados."},
+
+{tipo:"Ilha",nome:"Marine Ford",ilha:"Nível 370–415",
+info:"Área avançada de progressão e história."},
+
+{tipo:"Ilha",nome:"Vulcan Island",ilha:"Nível 415–450",
+info:"Área de progressão avançada. Boss associado: Eternal Forgemaster Kaeldros."},
+
+{tipo:"Ilha",nome:"Ashforge Bastion",ilha:"Nível 415–450",
+info:"Área especial relacionada à região de Vulcan. Detalhes adicionais ainda não confirmados."},
+
+{tipo:"Ilha",nome:"Heavenstep Mountain",ilha:"Área especial",
+info:"Área de parkour relacionada ao treinamento Heavenstep."},
+
+{tipo:"Ilha",nome:"Dark Arena",ilha:"Área especial",
+info:"Área relacionada ao confronto de raid Black Beard."},
+
+{tipo:"Ilha",nome:"Kraken's Rest",ilha:"Área especial",
+info:"Local listado como área especial. Detalhes ainda não confirmados."},
+
+{tipo:"Ilha",nome:"Wandering Bastille",ilha:"Área especial",
+info:"Local que possui uma unidade do Vox Gacha."},
+
+/* ================= NPCS ================= */
+
+{tipo:"NPC",nome:"Hango",ilha:"Solmar Island",
+info:"Village Chief. Fica na Elder's House. Participa da história inicial e entrega uma fruta após o retorno da missão da Sacred Flower."},
+
+{tipo:"NPC",nome:"Beatriz",ilha:"Solmar Island",
+info:"Fica perto do cais. Participa da história do festival e recebe a Sacred Flower quando você retorna de Forbidden Island."},
+
+{tipo:"NPC",nome:"Supplies Lady",ilha:"Solmar Island",
+info:"Fica na Old Lady's House. Relacionada à missão Supplies for the Crossing."},
+
+{tipo:"NPC",nome:"Hale",ilha:"Solmar Island",
+info:"Fica perto da loja de navios. A loja fica atrás dele."},
+
+{tipo:"NPC",nome:"Sky Hermit",ilha:"Solmar Island",
+info:"Instrutor relacionado ao Heavenstep. O treinamento inicial foi listado a partir do nível 10 por 500 Gold."},
+
+{tipo:"NPC",nome:"Darius",ilha:"Forbidden Island",
+info:"NPC relacionado ao acampamento de caçadores e à história da ilha."},
+
+{tipo:"NPC",nome:"Morgana",ilha:"Forbidden Island",
+info:"NPC localizado na Witch House."},
+
+{tipo:"NPC",nome:"Circus Town Mayor",ilha:"Circus Town",
+info:"Fica dentro da Mayor House. Participa das entregas da história após os acontecimentos com Jester."},
+
+{tipo:"NPC",nome:"Mysterious Monk",ilha:"Golden Dunes",
+info:"NPC relacionado ao treinamento de movimentação Soru."},
+
+{tipo:"NPC",nome:"Old Explorer",ilha:"Harbor Island",
+info:"Recebe as notas da história depois dos acontecimentos em Golden Dunes."},
+
+{tipo:"NPC",nome:"Pawnbroker",ilha:"Harbor Island",
+info:"Compra tesouros e vende mapas do tesouro. A missão do mapa foi relacionada a derrotar um inimigo de nível 100 ou superior."},
+
+{tipo:"NPC",nome:"Banker",ilha:"Harbor Island",
+info:"Serviço de armazenamento de itens. A quantidade e o custo dos espaços extras podem mudar."},
+
+{tipo:"NPC",nome:"Hairdresser",ilha:"Harbor Island",
+info:"Permite mudar a aparência. Preço listado: 1.000 moedas."},
+
+{tipo:"NPC",nome:"Vox Gacha",ilha:"Harbor Island e Wandering Bastille",
+info:"Permite girar para receber uma fruta. Foi listado um giro a cada duas horas, com preço relacionado ao nível."},
+
+{tipo:"NPC",nome:"Blacksmith",ilha:"Harbor Island",
+info:"Serviço de forja relacionado à criação de itens e chaves. As receitas disponíveis podem variar."},
+
+{tipo:"NPC",nome:"Room Keeper",ilha:"Solmar Island",
+info:"NPC relacionado à criação e entrada nas salas de Boss Rovan."},
+
+{tipo:"NPC",nome:"Abyssal Oracle",ilha:"Dark Arena",
+info:"NPC relacionado à entrega da Cursed Seal Key para o confronto Black Beard."},
+
+/* ================= MISSÕES ================= */
+
+{tipo:"Missão",nome:"Defeat Pirates",ilha:"Solmar Island",
+info:"Nível mínimo listado: 1. Derrote Cutlass Pirates e Flint Pirates. Recompensa antiga listada: 73 EXP e 170 Gold base."},
+
+{tipo:"Missão",nome:"The Lost Brother",ilha:"Solmar Island",
+info:"Missão da história. Depois do festival, siga os objetivos até Supplies for the Crossing e prepare sua viagem."},
+
+{tipo:"Missão",nome:"Supplies for the Crossing",ilha:"Solmar Island",
+info:"Missão relacionada à preparação para a viagem. Consulte o objetivo indicado no jogo para saber os itens necessários."},
+
+{tipo:"Missão",nome:"Sacred Flower",ilha:"Forbidden Island",
+info:"Parte da história para ajudar Luca. Depois de conseguir a Sacred Flower, retorne a Solmar e entregue para Beatriz."},
+
+{tipo:"Missão",nome:"Defeat Werewolves",ilha:"Forbidden Island",
+info:"Missão de caça relacionada aos Werewolves. A recompensa e os requisitos podem variar conforme a atualização."},
+
+{tipo:"Missão",nome:"Defeat Jester Pirates",ilha:"Circus Town",
+info:"Missão de caça contra os piratas da ilha. Nível mínimo listado anteriormente: 45."},
+
+{tipo:"Missão",nome:"A Revolução",ilha:"Golden Dunes",
+info:"Continue a história da ilha e obtenha as notas do Legendary Treasure. Depois retorne ao Old Explorer em Harbor."},
+
+{tipo:"Missão",nome:"The Night at the Bastille",ilha:"Harbor Island e Wandering Bastille",
+info:"Parte da história que envolve uma Fishing Rod, uma carta no hotel e a entrega de uma amostra ao chef do restaurante."},
+
+{tipo:"Missão",nome:"Arthur's Abandoned Experiment",ilha:"Fountain",
+info:"Missão mencionada na versão 1.1.6, relacionada a um experimento e ao Raw Metal. Localização e requisitos precisam ser conferidos no jogo."},
+
+/* ================= MATERIAIS ================= */
+
+{tipo:"Material",nome:"Wood",ilha:"Solmar Ship Shop",
+info:"Custa 5 Gold por unidade. Usado para reparar barcos com o Shipwright's Hammer."},
+
+{tipo:"Material",nome:"Sky Silk",ilha:"Starter Island",
+info:"Procure atrás das casas o NPC que indica o caminho do parkour da montanha."},
+
+{tipo:"Material",nome:"Hemp Rope",ilha:"Fonte não confirmada",
+info:"Ingrediente da Rovan Hard Key. A quantidade da receita Hard é 8 unidades."},
+
+{tipo:"Material",nome:"Canvas Scrap",ilha:"Fonte não confirmada",
+info:"Ingrediente da Rovan Hard Key. A quantidade da receita Hard é 5 unidades."},
+
+{tipo:"Material",nome:"Pine Tar",ilha:"Fonte não confirmada",
+info:"Ingrediente da Rovan Hard Key. A quantidade da receita Hard é 5 unidades."},
+
+{tipo:"Material",nome:"Seashell",ilha:"Praias de Solmar",
+info:"Ingrediente da Rovan Hard Key. A quantidade da receita Hard é 5 unidades. Ponto exato de coleta não confirmado."},
+
+{tipo:"Material",nome:"Shipwreck Wood",ilha:"Fonte não confirmada",
+info:"Ingrediente da Rovan Hard Key. A quantidade da receita Hard é 8 unidades."},
+
+{tipo:"Material",nome:"Raw Metal",ilha:"Fonte não confirmada",
+info:"Ingrediente da Rovan Hard Key. A quantidade da receita Hard é 12 unidades. Também aparece em informação de missão."},
+
+{tipo:"Material",nome:"Driftwood",ilha:"Fonte não confirmada",
+info:"Recurso descrito como madeira trazida pelo mar. Não confundir com Shipwreck Wood."},
+
+{tipo:"Material",nome:"Tattered Bandana",ilha:"Rovan Normal Boss Room",
+info:"Chance de drop documentada: 27,5%."},
+
+{tipo:"Material",nome:"Outlaw's Seal",ilha:"Rovan Normal Boss Room",
+info:"Chance de drop documentada: 15%."},
+
+{tipo:"Material",nome:"Forge Ember",ilha:"Drops de alguns Bosses",
+info:"Material utilizado em tentativas de melhoria na Forge. Fontes documentadas incluem Rovan, Narmer, Kael, Morvath, Kaeldros, Yeti, Gromar, Renshu, Thalara, Varek e Golden Admiral Aurel."},
+
+{tipo:"Material",nome:"Circus Silk",ilha:"Fonte não confirmada",
+info:"Material descrito como tecido retirado de tendas antigas do circo."},
+
+{tipo:"Material",nome:"Clown Paint",ilha:"Fonte não confirmada",
+info:"Material relacionado aos artistas do circo."},
+
+{tipo:"Material",nome:"Grave Soil",ilha:"Fonte não confirmada",
+info:"Recurso descrito como terra de sepulturas amaldiçoadas."},
+
+{tipo:"Material",nome:"Shadow Fur",ilha:"Fonte não confirmada",
+info:"Recurso relacionado aos Werewolves."},
+
+{tipo:"Material",nome:"Glacier Water",ilha:"Fonte não confirmada",
+info:"Água gelada relacionada às regiões congeladas."},
+
+{tipo:"Material",nome:"Polar Fur",ilha:"Fonte não confirmada",
+info:"Material relacionado à região gelada."},
+
+{tipo:"Material",nome:"Viking Iron",ilha:"Fonte não confirmada",
+info:"Material de ferro relacionado aos Vikings."},
+
+{tipo:"Material",nome:"Frozen Pinewood",ilha:"Fonte não confirmada",
+info:"Madeira congelada descrita no catálogo de materiais."},
+
+{tipo:"Material",nome:"Frost Lichen",ilha:"Fonte não confirmada",
+info:"Líquen encontrado em rochas geladas, segundo a descrição do material."},
+
+{tipo:"Material",nome:"Brass Scrap",ilha:"Fonte não confirmada",
+info:"Fragmentos de latão descritos no catálogo de materiais."},
+
+{tipo:"Material",nome:"Juggling Pin",ilha:"Fonte não confirmada",
+info:"Material relacionado ao circo."},
+
+{tipo:"Material",nome:"Glitter Dust",ilha:"Fonte não confirmada",
+info:"Pó brilhante descrito como recurso das tendas do circo."},
+
+{tipo:"Material",nome:"Gunpowder",ilha:"Fonte não confirmada",
+info:"Material listado no catálogo. Local exato de obtenção não confirmado."},
+
+{tipo:"Material",nome:"Silver Dust",ilha:"Fonte não confirmada",
+info:"Pó de prata listado como recurso."},
+
+{tipo:"Material",nome:"Werewolf Claw",ilha:"Fonte não confirmada",
+info:"Material relacionado aos Werewolves."},
+
+{tipo:"Material",nome:"Moonlit Herb",ilha:"Fonte não confirmada",
+info:"Erva descrita como uma planta que floresce sob a lua cheia."},
+
+{tipo:"Material",nome:"Cursed Moss",ilha:"Fonte não confirmada",
+info:"Musgo descrito como recurso relacionado à lua amaldiçoada."},
+
+{tipo:"Material",nome:"Wolf Leather",ilha:"Veyrn",
+info:"Material listado entre as recompensas do Duskfang Reaper Veyrn."},
+
+{tipo:"Material",nome:"Wolf Skull",ilha:"Veyrn",
+info:"Material listado entre as recompensas do Duskfang Reaper Veyrn."},
+
+{tipo:"Material",nome:"Death Fangs",ilha:"Veyrn",
+info:"Material listado entre as recompensas do Duskfang Reaper Veyrn."},
+
+{tipo:"Material",nome:"Jester's Bell",ilha:"Noctis",
+info:"Material listado entre as recompensas do Crimson Jester."},
+
+{tipo:"Material",nome:"Crimson Mask Shard",ilha:"Noctis",
+info:"Material listado entre as recompensas do Crimson Jester."},
+
+{tipo:"Material",nome:"Royal Linen Wrap",ilha:"Narmer",
+info:"Material listado entre as recompensas de Narmer."},
+
+{tipo:"Material",nome:"Pharaoh's Ruby",ilha:"Narmer",
+info:"Material listado entre as recompensas de Narmer."},
+
+{tipo:"Material",nome:"Frost Crystal Shard",ilha:"Kael",
+info:"Material listado entre as recompensas do Ice King."},
+
+{tipo:"Material",nome:"Glacial Essence",ilha:"Kael",
+info:"Material listado entre as recompensas do Ice King."},
+
+{tipo:"Material",nome:"Frost Core Left",ilha:"Yeti",
+info:"Material listado entre as recompensas do Blizzard Colossus."},
+
+{tipo:"Material",nome:"Frost Core Right",ilha:"Yeti",
+info:"Material listado entre as recompensas do Blizzard Colossus."},
+
+{tipo:"Material",nome:"Toxic Sludge",ilha:"Morvath",
+info:"Material listado entre as recompensas de Morvath."},
+
+{tipo:"Material",nome:"Blight Vial",ilha:"Morvath",
+info:"Material listado entre as recompensas de Morvath."},
+
+{tipo:"Material",nome:"Molten Slag",ilha:"Kaeldros",
+info:"Material listado entre as recompensas de Kaeldros."},
+
+{tipo:"Material",nome:"Everburning Core",ilha:"Kaeldros",
+info:"Material listado entre as recompensas de Kaeldros."},
+
+{tipo:"Material",nome:"Broken Shackle",ilha:"Gromar",
+info:"Material listado entre as recompensas de Gromar."},
+
+{tipo:"Material",nome:"Titan's Chain Link",ilha:"Gromar",
+info:"Material listado entre as recompensas de Gromar."},
+
+{tipo:"Material",nome:"Gilded Prayer Bead",ilha:"Renshu",
+info:"Material listado entre as recompensas de Renshu."},
+
+{tipo:"Material",nome:"Iron Lotus Petal",ilha:"Renshu",
+info:"Material listado entre as recompensas de Renshu."},
+
+{tipo:"Material",nome:"Champion's Laurel",ilha:"Thalara",
+info:"Material listado entre as recompensas de Thalara."},
+
+{tipo:"Material",nome:"Empress Sigil",ilha:"Thalara",
+info:"Material listado entre as recompensas de Thalara."},
+
+{tipo:"Material",nome:"Scorched Scarab Shell",ilha:"Varek",
+info:"Material listado entre as recompensas de Varek."},
+
+{tipo:"Material",nome:"Sun Stone",ilha:"Varek",
+info:"Material listado entre as recompensas de Varek."},
+
+{tipo:"Material",nome:"Gilded Epaulette",ilha:"Golden Admiral Aurel",
+info:"Material listado entre as recompensas de Aurel."},
+
+{tipo:"Material",nome:"Admiral's Medal",ilha:"Golden Admiral Aurel",
+info:"Material listado entre as recompensas de Aurel."},
+
+/* ================= CHAVES ================= */
+
+{tipo:"Chave",nome:"Rovan Normal Key",ilha:"Room Keeper — Solmar Island",
+info:"Chave relacionada à sala Normal de Rovan. Todos os participantes precisam atingir o nível 100. O anfitrião fornece a chave."},
+
+{tipo:"Chave",nome:"Bandit King Rovan Medium Key",ilha:"Forge / Blacksmith",
+info:"Chave relacionada à sala Medium de Rovan. Nível mínimo de entrada: 200 para cada participante."},
+
+{tipo:"Chave",nome:"Bandit King Rovan Hard Key",ilha:"Forge / Blacksmith",
+info:"Receita: 5 Canvas Scrap, 8 Shipwreck Wood, 8 Hemp Rope, 5 Pine Tar, 12 Raw Metal e 5 Seashell. Nível mínimo de entrada: 300 para cada participante."},
+
+{tipo:"Chave",nome:"Bandit King Rovan Insane Key",ilha:"Forge / Blacksmith",
+info:"Chave relacionada à sala Insane de Rovan. Nível mínimo de entrada: 400 para cada participante."},
+
+{tipo:"Chave",nome:"Bandit King Rovan Nightmare Key",ilha:"Forge / Blacksmith",
+info:"Chave relacionada à sala Nightmare de Rovan. Nível mínimo de entrada: 500 para cada participante."},
+
+{tipo:"Chave",nome:"Cursed Seal Key",ilha:"Abyssal Oracle — Dark Arena",
+info:"Chave relacionada ao confronto de raid Black Beard. A fonte de obtenção ainda não está confirmada."},
+
+/* ================= BOSSES ================= */
+
+{tipo:"Boss",nome:"Bandit King Rovan",ilha:"Solmar Island",
+info:"Materiais documentados: Tattered Bandana, Outlaw's Seal e Forge Ember. A sala Normal também pode oferecer receitas de acessórios. Tattered Bandana: 27,5%. Outlaw's Seal: 15%."},
+
+{tipo:"Boss",nome:"Duskfang Reaper Veyrn",ilha:"Forbidden Island",
+info:"Materiais documentados: Wolf Leather, Wolf Skull e Death Fangs. Também aparece relacionado ao Umbral Fang e ao conjunto Moonfang."},
+
+{tipo:"Boss",nome:"Noctis, The Crimson Jester",ilha:"Circus Town",
+info:"Materiais documentados: Jester's Bell e Crimson Mask Shard. Também possui recompensas relacionadas ao conjunto Jester."},
+
+{tipo:"Boss",nome:"Narmer, The Pharaoh",ilha:"Golden Dunes",
+info:"Materiais documentados: Royal Linen Wrap, Pharaoh's Ruby e Forge Ember."},
+
+{tipo:"Boss",nome:"Kael, The Ice King",ilha:"Frost Island",
+info:"Materiais documentados: Frost Crystal Shard, Glacial Essence e Forge Ember."},
+
+{tipo:"Boss",nome:"Blizzard Colossus Yeti",ilha:"Região de Frost",
+info:"Materiais documentados: Frost Core Left, Frost Core Right e Forge Ember."},
+
+{tipo:"Boss",nome:"Zarkan, Tidebreaker",ilha:"Shark Park",
+info:"Boss associado ao conjunto Tidebreaker. A tabela pública consultada não apresenta todos os materiais e porcentagens."},
+
+{tipo:"Boss",nome:"Morvath, The Prison Boss",ilha:"Prison",
+info:"Materiais documentados: Toxic Sludge, Blight Vial e Forge Ember."},
+
+{tipo:"Boss",nome:"Raikan, The False God",ilha:"Local não confirmado",
+info:"A localização e os detalhes completos ainda não foram publicados na tabela consultada."},
+
+{tipo:"Boss",nome:"Eternal Forgemaster Kaeldros",ilha:"Vulcan Island",
+info:"Materiais documentados: Molten Slag, Everburning Core e Forge Ember."},
+
+{tipo:"Boss",nome:"Shackled Titan Gromar",ilha:"Local não confirmado",
+info:"Materiais documentados: Broken Shackle, Titan's Chain Link e Forge Ember."},
+
+{tipo:"Boss",nome:"Iron Lotus Master Renshu",ilha:"Local não confirmado",
+info:"Materiais documentados: Gilded Prayer Bead, Iron Lotus Petal e Forge Ember."},
+
+{tipo:"Boss",no
